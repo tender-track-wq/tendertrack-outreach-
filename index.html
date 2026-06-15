@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>TenderTrack SA — Morning Outreach</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0e0e0d;--surface:#161614;--surface2:#1e1e1b;--surface3:#252521;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);
+  --text:#e8e6df;--text2:#9e9b92;--text3:#5a5850;
+  --green:#1D9E75;--green-dim:#16755a;
+  --green-light:rgba(29,158,117,0.12);
+  --amber:#c97b2a;--amber-light:rgba(201,123,42,0.13);
+  --red:#b84040;--red-light:rgba(184,64,64,0.13);
+  --blue:#4a7fa5;--blue-light:rgba(74,127,165,0.13);
+  --radius:10px;--radius-sm:6px;
+}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;-webkit-font-smoothing:antialiased}
+.shell{display:grid;grid-template-columns:240px 1fr;min-height:100vh}
+/* SIDEBAR */
+.sidebar{background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto}
+.sb-top{padding:1.4rem 1.25rem 1rem;border-bottom:1px solid var(--border)}
+.logo{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:500}
+.logo-mark{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);flex-shrink:0}
+.logo-sub{font-size:11px;color:var(--text3);margin-top:4px;font-family:'DM Mono',monospace}
+.sb-section{font-size:10px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.09em;padding:.9rem 1.25rem .3rem}
+.sb-row{padding:.55rem 1.25rem;display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--text2)}
+.sb-val{font-family:'DM Mono',monospace;font-size:12px;color:var(--text);font-weight:500}
+.sb-val.green{color:var(--green)}.sb-val.amber{color:var(--amber)}
+.sb-config{padding:.5rem 1.25rem;display:flex;flex-direction:column;gap:5px}
+.sb-config label{font-size:10px;color:var(--text3);font-weight:500;text-transform:uppercase;letter-spacing:.07em}
+.sb-config input,.sb-config select{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:6px 8px;font-size:11.5px;color:var(--text);font-family:'DM Mono',monospace;outline:none;transition:border .15s}
+.sb-config input:focus,.sb-config select:focus{border-color:var(--green)}
+.sb-config select option{background:var(--surface2)}
+.sb-config .hint{font-size:10px;color:var(--text3);line-height:1.45;margin-top:2px}
+.sb-footer{margin-top:auto;padding:1rem 1.25rem;border-top:1px solid var(--border)}
+.gmail-status{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text2)}
+.gmail-dot{width:7px;height:7px;border-radius:50%;background:var(--text3);flex-shrink:0;transition:background .3s}
+.gmail-dot.on{background:var(--green);box-shadow:0 0 6px var(--green)}
+.gmail-email{font-size:10px;color:var(--text3);margin-top:2px;font-family:'DM Mono',monospace;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:180px}
+/* MAIN */
+.main{display:flex;flex-direction:column;min-height:100vh;overflow:hidden}
+.topbar{padding:1.1rem 1.75rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--surface);gap:1rem;flex-shrink:0}
+.topbar h1{font-size:16px;font-weight:500;letter-spacing:-.02em}
+.topbar-date{font-size:11px;color:var(--text3);margin-top:2px;font-family:'DM Mono',monospace}
+.topbar-actions{display:flex;gap:8px;align-items:center;flex-shrink:0}
+/* TABS */
+.tabs{display:flex;border-bottom:1px solid var(--border);background:var(--surface);padding:0 1.75rem;flex-shrink:0}
+.tab{padding:.65rem 1rem;font-size:12.5px;font-weight:500;color:var(--text3);cursor:pointer;border-bottom:2px solid transparent;transition:color .15s,border-color .15s;white-space:nowrap;user-select:none}
+.tab:hover{color:var(--text2)}.tab.active{color:var(--text);border-bottom-color:var(--green)}
+.tab-badge{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:16px;border-radius:4px;font-size:10px;font-family:'DM Mono',monospace;margin-left:6px;padding:0 4px}
+.tb-green{background:var(--green-light);color:#5ecba8}
+.tb-amber{background:var(--amber-light);color:#d4a06a}
+.tb-grey{background:var(--surface3);color:var(--text3)}
+.tab-panel{display:none;flex:1;flex-direction:column;overflow:hidden}
+.tab-panel.active{display:flex}
+/* ALERT */
+.alert-bar{margin:1.25rem 1.75rem 0;padding:9px 13px;border-radius:var(--radius-sm);font-size:12px;display:none;align-items:center;gap:8px;flex-shrink:0}
+.alert-bar.show{display:flex}
+.alert-bar.error{background:var(--red-light);border:1px solid rgba(184,64,64,.25);color:#e88}
+.alert-bar.success{background:var(--green-light);border:1px solid rgba(29,158,117,.25);color:#5ecba8}
+.alert-bar.info{background:var(--blue-light);border:1px solid rgba(74,127,165,.25);color:#7ab5d8}
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:var(--radius-sm);font-size:13px;font-weight:500;font-family:'DM Sans',sans-serif;cursor:pointer;border:none;transition:all .15s;line-height:1}
+.btn-ghost{background:transparent;border:1px solid var(--border2);color:var(--text2)}
+.btn-ghost:hover{background:var(--surface3);color:var(--text)}
+.btn-green{background:var(--green);color:#fff}
+.btn-green:hover{background:var(--green-dim)}
+.btn-green:disabled{background:var(--surface3);color:var(--text3);cursor:not-allowed}
+.btn-sm{padding:5px 10px;font-size:12px}
+.btn-full{width:100%;justify-content:center}
+/* OVERVIEW */
+.overview-body{flex:1;padding:1.5rem 1.75rem;display:flex;flex-direction:column;gap:1.25rem;overflow-y:auto}
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.metric{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1rem}
+.metric-lbl{font-size:11px;color:var(--text3);margin-bottom:5px}
+.metric-val{font-size:26px;font-weight:500;color:var(--text);line-height:1;font-family:'DM Mono',monospace}
+.metric-sub{font-size:11px;color:var(--text3);margin-top:4px}
+.metric-val.green{color:var(--green)}.metric-val.amber{color:var(--amber)}
+.generate-cta{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;display:flex;align-items:center;justify-content:space-between;gap:1rem}
+.generate-cta-left h2{font-size:15px;font-weight:500;margin-bottom:6px}
+.generate-cta-left p{font-size:12.5px;color:var(--text2);line-height:1.65;max-width:480px}
+.generate-cta-right{flex-shrink:0;display:flex;flex-direction:column;gap:8px;align-items:flex-end}
+.progress-block{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem}
+.pb-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.pb-title{font-size:13px;font-weight:500}
+.pb-pct{font-size:13px;font-family:'DM Mono',monospace;color:var(--green)}
+.pb-bar{height:5px;background:var(--surface3);border-radius:3px;overflow:hidden}
+.pb-fill{height:100%;background:var(--green);border-radius:3px;transition:width .5s ease}
+.pb-meta{font-size:11px;color:var(--text3);margin-top:7px}
+/* PREVIEW */
+.preview-body{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.preview-toolbar{padding:.85rem 1.75rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-shrink:0;background:var(--surface)}
+.preview-toolbar-left{font-size:12.5px;color:var(--text2)}
+.preview-toolbar-left strong{color:var(--text)}
+.preview-list{flex:1;overflow-y:auto;padding:1.25rem 1.75rem;display:flex;flex-direction:column;gap:8px}
+/* LEAD CARDS */
+.lead-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;transition:border-color .15s}
+.lead-card:hover{border-color:var(--border2)}
+.lead-card.lc-generating{border-color:rgba(74,127,165,.35);animation:pulse-blue 1.6s ease-in-out infinite}
+.lead-card.lc-ready{border-color:rgba(29,158,117,.2)}
+.lead-card.lc-sent{opacity:.5;border-color:var(--border)}
+.lead-card.lc-error{border-color:rgba(184,64,64,.3)}
+@keyframes pulse-blue{0%,100%{border-color:rgba(74,127,165,.35)}50%{border-color:rgba(74,127,165,.7)}}
+.lead-header{display:flex;align-items:center;gap:10px;padding:11px 14px;cursor:pointer;user-select:none}
+.lh-num{font-family:'DM Mono',monospace;font-size:11px;color:var(--text3);width:22px;flex-shrink:0;text-align:right}
+.lh-info{flex:1;min-width:0}
+.lh-name{font-size:13px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lh-meta{font-size:10.5px;color:var(--text3);margin-top:2px;font-family:'DM Mono',monospace}
+.lh-right{display:flex;align-items:center;gap:7px;flex-shrink:0}
+.badge{font-size:10px;padding:2px 7px;border-radius:4px;font-weight:500;font-family:'DM Mono',monospace;white-space:nowrap}
+.b-con{background:rgba(29,158,117,.15);color:#5ecba8}
+.b-sec{background:rgba(74,127,165,.15);color:#7ab5d8}
+.b-cln{background:rgba(201,123,42,.15);color:#d4a06a}
+.b-fac{background:rgba(120,100,200,.15);color:#b0a0e8}
+.b-a{background:rgba(29,158,117,.15);color:#5ecba8}
+.b-b{background:rgba(201,123,42,.15);color:#d4a06a}
+.b-c{background:rgba(184,64,64,.15);color:#e88}
+.b-va{background:rgba(29,158,117,.1);color:var(--green)}
+.b-vb{background:rgba(74,127,165,.1);color:var(--blue)}
+.b-vc{background:rgba(201,123,42,.1);color:var(--amber)}
+.status-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.sd-pending{background:var(--text3)}
+.sd-generating{background:var(--blue);animation:blink 1s ease-in-out infinite}
+.sd-ready{background:var(--green)}
+.sd-sent{background:var(--text3);opacity:.5}
+.sd-error{background:var(--red)}
+@keyframes blink{0%,100%{opacity:.4}50%{opacity:1}}
+.spinner{width:13px;height:13px;border:2px solid var(--border2);border-top-color:var(--blue);border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+/* EMAIL EDITOR */
+.lead-body{display:none;border-top:1px solid var(--border);background:var(--surface2)}
+.lead-body.open{display:block}
+.email-editor{padding:14px 16px}
+.email-to-row{display:flex;align-items:center;gap:6px;margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+.email-to-row label{font-size:11px;color:var(--text3);white-space:nowrap;font-weight:500}
+.email-to-row input{flex:1;background:transparent;border:none;border-bottom:1px solid var(--border);padding:3px 4px;font-size:12px;color:var(--text);font-family:'DM Mono',monospace;outline:none;min-width:0}
+.email-to-row input:focus{border-bottom-color:var(--green)}
+.email-section{margin-bottom:12px}
+.es-label{font-size:10px;color:var(--text3);font-weight:500;text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px;font-family:'DM Mono',monospace;display:flex;align-items:center;gap:6px}
+.es-subj{font-size:11.5px;color:var(--text2);margin-bottom:6px;padding:5px 8px;background:var(--surface3);border-radius:4px;font-family:'DM Mono',monospace}
+.es-subj span{color:var(--text)}
+.es-body{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:11px 13px;font-size:12.5px;line-height:1.7;color:var(--text2);white-space:pre-wrap;font-family:'DM Sans',sans-serif;outline:none;transition:border .15s;min-height:80px}
+.es-body[contenteditable=true]:focus{border-color:var(--green);color:var(--text)}
+.email-divider{height:1px;background:var(--border);margin:12px 0}
+.card-actions{display:flex;gap:7px;margin-top:12px;padding-top:12px;border-top:1px solid var(--border)}
+/* SEND BAR */
+.send-bar{padding:1rem 1.75rem;border-top:1px solid var(--border);background:var(--surface);display:none;align-items:center;justify-content:space-between;gap:1rem;flex-shrink:0}
+.send-bar.show{display:flex}
+.send-summary{font-size:12px;color:var(--text2)}
+.send-summary strong{color:var(--text)}
+.send-mini-bar{height:3px;background:var(--surface3);border-radius:2px;margin-top:5px;overflow:hidden;width:160px}
+.send-mini-fill{height:100%;background:var(--green);border-radius:2px;transition:width .4s}
+/* LOG */
+.log-body{flex:1;overflow-y:auto;padding:1.25rem 1.75rem;display:flex;flex-direction:column;gap:6px}
+.log-empty{flex:1;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;color:var(--text3);padding:3rem}
+.log-empty-icon{font-size:32px;opacity:.3}
+.log-row{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 14px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.log-company{font-size:13px;font-weight:500}
+.log-meta{font-size:11px;color:var(--text3);margin-top:2px;font-family:'DM Mono',monospace}
+.log-time{font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;flex-shrink:0}
+/* CONNECT */
+.connect-screen{flex:1;display:flex;align-items:center;justify-content:center;padding:3rem}
+.connect-box{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:2rem;max-width:380px;width:100%;text-align:center}
+.connect-box h2{font-size:16px;font-weight:500;margin-bottom:8px}
+.connect-box p{font-size:12.5px;color:var(--text2);line-height:1.65;margin-bottom:1.25rem}
+.connect-note{font-size:11px;color:var(--text3);margin-top:.75rem;line-height:1.5}
+/* OVERLAY */
+.overlay{position:fixed;inset:0;background:rgba(14,14,13,.88);display:none;align-items:center;justify-content:center;z-index:200;backdrop-filter:blur(3px)}
+.overlay.show{display:flex}
+.overlay-box{background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius);padding:2rem;min-width:300px;text-align:center}
+.overlay-box h3{font-size:15px;font-weight:500;margin-bottom:8px}
+.overlay-box p{font-size:12px;color:var(--text2);margin-bottom:1.25rem;line-height:1.5}
+.overlay-bar{height:4px;background:var(--surface3);border-radius:2px;overflow:hidden}
+.overlay-fill{height:100%;background:var(--green);border-radius:2px;transition:width .5s ease}
+.overlay-count{font-size:11px;color:var(--text3);margin-top:8px;font-family:'DM Mono',monospace}
+</style>
+</head>
+<body>
+<div class="shell">
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sb-top">
+    <div class="logo"><div class="logo-mark"></div>TenderTrack SA</div>
+    <div class="logo-sub">Morning Outreach</div>
+  </div>
+  <div class="sb-section">Pipeline</div>
+  <div class="sb-row"><span>Total leads</span><span class="sb-val" id="sb-total">100</span></div>
+  <div class="sb-row"><span>Contacted</span><span class="sb-val green" id="sb-contacted">0</span></div>
+  <div class="sb-row"><span>Remaining</span><span class="sb-val amber" id="sb-remaining">100</span></div>
+  <div class="sb-section">Config</div>
+  <div class="sb-config">
+    <label>Dashboard / Google Drive link</label>
+    <input type="url" id="cfg-dashboard" value="https://tendertrack.co.za/demo/" placeholder="Paste Google Drive or dashboard URL"/>
+    <div class="hint">Paste any shareable URL — Google Drive, Notion, or your live dashboard. Used as the demo link in every email.</div>
+  </div>
+  <div class="sb-config" style="margin-top:6px">
+    <label>Your name (sign-off)</label>
+    <input type="text" id="cfg-name" value="Neo"/>
+  </div>
+  <div class="sb-config" style="margin-top:6px">
+    <label>Batch size</label>
+    <select id="cfg-batch">
+      <option value="10">10 leads</option>
+      <option value="25" selected>25 leads</option>
+      <option value="50">50 leads</option>
+    </select>
+  </div>
+  <div class="sb-config" style="margin-top:6px">
+    <label>Voice variation</label>
+    <select id="cfg-variation">
+      <option value="rotate" selected>Rotate A → B → C (recommended)</option>
+      <option value="A">A — Straight shooter</option>
+      <option value="B">B — Curiosity gap</option>
+      <option value="C">C — Social proof hook</option>
+    </select>
+    <div class="hint">Rotate cycles all three voices across the batch so sends don't look templated.</div>
+  </div>
+  <div class="sb-footer">
+    <div class="gmail-status">
+      <div class="gmail-dot" id="gmail-dot"></div>
+      <div>
+        <div id="gmail-status-txt" style="font-size:12px;color:var(--text2)">Not connected</div>
+        <div class="gmail-email" id="gmail-email-txt">Connect Gmail to send</div>
+      </div>
+    </div>
+  </div>
+</aside>
+<!-- MAIN -->
+<main class="main" id="main">
+  <!-- Connect screen -->
+  <div class="connect-screen" id="connect-screen">
+    <div class="connect-box">
+      <h2>Connect Gmail to continue</h2>
+      <p>TenderTrack SA sends emails directly from your Gmail. Nothing is stored externally — your token lives only in this browser session.</p>
+      <button class="btn btn-green btn-full" onclick="connectGmail()">Connect Gmail</button>
+      <p class="connect-note">You'll be redirected to Google to grant send-only permissions. Replace YOUR_GOOGLE_CLIENT_ID in the source with your OAuth Client ID from Google Cloud Console.</p>
+    </div>
+  </div>
+  <!-- App (post-auth) -->
+  <div id="app" style="display:none;flex-direction:column;flex:1;overflow:hidden">
+    <div class="topbar">
+      <div>
+        <h1>Morning Outreach</h1>
+        <div class="topbar-date" id="topbar-date"></div>
+      </div>
+      <div class="topbar-actions">
+        <button class="btn btn-ghost btn-sm" onclick="resetAll()">↺ Reset log</button>
+        <button class="btn btn-green" id="btn-generate" onclick="startGenerate()">✦ Generate preview</button>
+      </div>
+    </div>
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab('overview',this)">Overview</div>
+      <div class="tab" onclick="switchTab('preview',this)">Email Preview <span class="tab-badge tb-grey" id="tab-preview-badge">0</span></div>
+      <div class="tab" onclick="switchTab('log',this)">Sent Log <span class="tab-badge tb-green" id="tab-log-badge">0</span></div>
+    </div>
+    <div class="alert-bar" id="alert-bar"></div>
+    <!-- OVERVIEW -->
+    <div class="tab-panel active" id="panel-overview">
+      <div class="overview-body">
+        <div class="metrics">
+          <div class="metric"><div class="metric-lbl">Total prospects</div><div class="metric-val" id="m-total">100</div><div class="metric-sub">across 4 sectors</div></div>
+          <div class="metric"><div class="metric-lbl">Contacted</div><div class="metric-val green" id="m-contacted">0</div><div class="metric-sub">emails sent</div></div>
+          <div class="metric"><div class="metric-lbl">Remaining</div><div class="metric-val amber" id="m-remaining">100</div><div class="metric-sub">in queue</div></div>
+          <div class="metric"><div class="metric-lbl">Today's batch</div><div class="metric-val" id="m-batch">—</div><div class="metric-sub" id="m-batch-sub">not yet generated</div></div>
+        </div>
+        <div class="generate-cta">
+          <div class="generate-cta-left">
+            <h2>Ready to run today's batch?</h2>
+            <p>Claude reads the next <span id="cta-batch-n">25</span> uncontacted leads, writes personalised two-email sequences using the outreach skill, and rotates voice variations A/B/C so sends don't look templated. Review everything in the Email Preview tab before anything goes out.</p>
+          </div>
+          <div class="generate-cta-right">
+            <button class="btn btn-green" onclick="startGenerate()">✦ Generate preview</button>
+            <div style="font-size:11px;color:var(--text3);text-align:right">No email is sent until<br>you click Send all</div>
+          </div>
+        </div>
+        <div class="progress-block">
+          <div class="pb-header"><div class="pb-title">Campaign progress</div><div class="pb-pct" id="pb-pct">0%</div></div>
+          <div class="pb-bar"><div class="pb-fill" id="pb-fill" style="width:0%"></div></div>
+          <div class="pb-meta" id="pb-meta">0 of 100 prospects contacted</div>
+        </div>
+      </div>
+    </div>
+    <!-- PREVIEW -->
+    <div class="tab-panel" id="panel-preview" style="overflow:hidden">
+      <div class="preview-body">
+        <div class="preview-toolbar">
+          <div class="preview-toolbar-left" id="preview-toolbar-txt">Generate a batch to preview emails here.</div>
+          <button class="btn btn-ghost btn-sm" onclick="startGenerate()">↺ Re-generate</button>
+        </div>
+        <div class="preview-list" id="preview-list">
+          <div style="flex:1;display:flex;align-items:center;justify-content:center;color:var(--text3);font-size:13px;padding:3rem;text-align:center;flex-direction:column;gap:8px">
+            <div style="font-size:28px;opacity:.25">✉</div>
+            <div>No emails generated yet</div>
+            <div style="font-size:12px;opacity:.6">Click "Generate preview" to start</div>
+          </div>
+        </div>
+        <div class="send-bar" id="send-bar">
+          <div>
+            <div class="send-summary"><strong id="sb-ready">0</strong> ready &nbsp;·&nbsp; <strong id="sb-sent-today">0</strong> sent today</div>
+            <div class="send-mini-bar"><div class="send-mini-fill" id="send-mini-fill" style="width:0%"></div></div>
+          </div>
+          <button class="btn btn-green" onclick="sendAll()" id="btn-send-all">Send all <span id="send-all-n">25</span> emails →</button>
+        </div>
+      </div>
+    </div>
+    <!-- LOG -->
+    <div class="tab-panel" id="panel-log">
+      <div class="log-body" id="log-body">
+        <div class="log-empty" id="log-empty">
+          <div class="log-empty-icon">📋</div>
+          <div style="font-size:13px;color:var(--text2)">No sends logged yet</div>
+          <div style="font-size:12px;color:var(--text3)">Sent emails appear here with timestamps</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+</div>
+<!-- OVERLAY -->
+<div class="overlay" id="overlay">
+  <div class="overlay-box">
+    <h3>Sending emails</h3>
+    <p id="overlay-msg">Dispatching outreach via Gmail...</p>
+    <div class="overlay-bar"><div class="overlay-fill" id="overlay-fill" style="width:0%"></div></div>
+    <div class="overlay-count" id="overlay-count">0 / 0</div>
+  </div>
+</div>
+<script>
+const PROSPECTS=[
+  {id:1,name:"Trencon Construction",city:"Johannesburg",sector:"Construction",tier:"A",mrr:"R25-35k"},
+  {id:2,name:"Raubex Group (mid division)",city:"Pretoria",sector:"Construction",tier:"A",mrr:"R30-50k"},
+  {id:3,name:"CSV Construction",city:"Cape Town",sector:"Construction",tier:"A",mrr:"R20-30k"},
+  {id:4,name:"Edwin Construction",city:"Johannesburg",sector:"Construction",tier:"A",mrr:"R15-25k"},
+  {id:5,name:"Ivecon Projects",city:"Johannesburg",sector:"Construction",tier:"A",mrr:"R15-20k"},
+  {id:6,name:"Nejeni Civil Engineering",city:"Durban",sector:"Construction",tier:"A",mrr:"R15-20k"},
+  {id:7,name:"Rinoma Construction",city:"East London",sector:"Construction",tier:"A",mrr:"R12-18k"},
+  {id:8,name:"Renov8 SA",city:"Cape Town",sector:"Construction",tier:"B",mrr:"R8-12k"},
+  {id:9,name:"Scotch Score Holdings",city:"Cape Town",sector:"Construction",tier:"B",mrr:"R8-12k"},
+  {id:10,name:"Dhilwayo Civil",city:"Pretoria",sector:"Construction",tier:"A",mrr:"R15-22k"},
+  {id:11,name:"Siyakhula Construction",city:"Johannesburg",sector:"Construction",tier:"A",mrr:"R12-18k"},
+  {id:12,name:"Nkele Civil Works",city:"Durban",sector:"Construction",tier:"B",mrr:"R8-12k"},
+  {id:13,name:"Mthombo Builders",city:"Cape Town",sector:"Construction",tier:"B",mrr:"R8-12k"},
+  {id:14,name:"Ubuhle Construction",city:"East London",sector:"Construction",tier:"B",mrr:"R8-10k"},
+  {id:15,name:"Masondo Infrastructure",city:"Pretoria",sector:"Construction",tier:"A",mrr:"R15-20k"},
+  {id:16,name:"Khulani Civil Engineering",city:"Johannesburg",sector:"Construction",tier:"A",mrr:"R12-18k"},
+  {id:17,name:"Thandeka Building Contractors",city:"Durban",sector:"Construction",tier:"B",mrr:"R8-12k"},
+  {id:18,name:"Vukani Projects",city:"Bloemfontein",sector:"Construction",tier:"B",mrr:"R8-10k"},
+  {id:19,name:"Sizwe Construction",city:"Polokwane",sector:"Construction",tier:"B",mrr:"R8-10k"},
+  {id:20,name:"Lethiwe Civil Contractors",city:"Pietermaritzburg",sector:"Construction",tier:"C",mrr:"R3-6k"},
+  {id:21,name:"Phambili Roads and Civil",city:"Port Elizabeth",sector:"Construction",tier:"B",mrr:"R8-12k"},
+  {id:22,name:"Ntuthuko Infrastructure",city:"Nelspruit",sector:"Construction",tier:"C",mrr:"R4-6k"},
+  {id:23,name:"Sithelo Building Works",city:"Rustenburg",sector:"Construction",tier:"B",mrr:"R8-10k"},
+  {id:24,name:"Mabunda Civil",city:"Polokwane",sector:"Construction",tier:"C",mrr:"R3-5k"},
+  {id:25,name:"KasiBuilt Contractors",city:"Soweto",sector:"Construction",tier:"C",mrr:"R3-5k"},
+  {id:26,name:"Vision Tactical Security",city:"Johannesburg",sector:"Security",tier:"A",mrr:"R20-30k"},
+  {id:27,name:"Red Alert Guarding",city:"East London",sector:"Security",tier:"A",mrr:"R15-25k"},
+  {id:28,name:"247 Security Services",city:"Johannesburg",sector:"Security",tier:"A",mrr:"R15-20k"},
+  {id:29,name:"Khanya Green Security",city:"Cape Town",sector:"Security",tier:"A",mrr:"R12-18k"},
+  {id:30,name:"Intelligence VIP Protection",city:"Johannesburg",sector:"Security",tier:"A",mrr:"R20-35k"},
+  {id:31,name:"KCS Security",city:"Durban",sector:"Security",tier:"A",mrr:"R12-18k"},
+  {id:32,name:"Proshield Security",city:"Cape Town",sector:"Security",tier:"B",mrr:"R8-12k"},
+  {id:33,name:"Global Security Solutions",city:"Cape Town",sector:"Security",tier:"B",mrr:"R8-12k"},
+  {id:34,name:"IPS Intelligence Protection",city:"Johannesburg",sector:"Security",tier:"A",mrr:"R15-20k"},
+  {id:35,name:"Nkosi Guard Force",city:"Pretoria",sector:"Security",tier:"B",mrr:"R8-12k"},
+  {id:36,name:"Lungelo Security Services",city:"Durban",sector:"Security",tier:"B",mrr:"R8-10k"},
+  {id:37,name:"Sifiso Security Solutions",city:"Johannesburg",sector:"Security",tier:"B",mrr:"R8-12k"},
+  {id:38,name:"Thabo Guard and Patrol",city:"Cape Town",sector:"Security",tier:"B",mrr:"R8-10k"},
+  {id:39,name:"Mziwandile Security",city:"Port Elizabeth",sector:"Security",tier:"C",mrr:"R4-6k"},
+  {id:40,name:"Banzi Security Services",city:"Bloemfontein",sector:"Security",tier:"C",mrr:"R3-5k"},
+  {id:41,name:"Langa Security Corps",city:"Cape Town",sector:"Security",tier:"C",mrr:"R4-6k"},
+  {id:42,name:"Sandile Guard Solutions",city:"Durban",sector:"Security",tier:"C",mrr:"R3-5k"},
+  {id:43,name:"Bulelani Armed Response",city:"East London",sector:"Security",tier:"C",mrr:"R3-5k"},
+  {id:44,name:"Ntombi Security and Events",city:"Pretoria",sector:"Security",tier:"C",mrr:"R3-5k"},
+  {id:45,name:"Mandla Patrol Services",city:"Johannesburg",sector:"Security",tier:"C",mrr:"R3-5k"},
+  {id:46,name:"Supercare Services",city:"Johannesburg",sector:"Cleaning",tier:"A",mrr:"R20-30k"},
+  {id:47,name:"Servest Cleaning",city:"Cape Town",sector:"Cleaning",tier:"A",mrr:"R20-35k"},
+  {id:48,name:"Bidvest Steiner Hygiene",city:"Johannesburg",sector:"Cleaning",tier:"A",mrr:"R25-40k"},
+  {id:49,name:"Tsebo Solutions",city:"Pretoria",sector:"Cleaning",tier:"A",mrr:"R20-30k"},
+  {id:50,name:"Rentokil Initial SA",city:"Durban",sector:"Cleaning",tier:"A",mrr:"R15-25k"},
+  {id:51,name:"Mopani Cleaning Services",city:"Johannesburg",sector:"Cleaning",tier:"A",mrr:"R12-18k"},
+  {id:52,name:"Siyavuma Cleaning",city:"Durban",sector:"Cleaning",tier:"A",mrr:"R12-18k"},
+  {id:53,name:"Bongiwe Facilities Clean",city:"Cape Town",sector:"Cleaning",tier:"B",mrr:"R8-12k"},
+  {id:54,name:"Zanele Industrial Clean",city:"Pretoria",sector:"Cleaning",tier:"B",mrr:"R8-12k"},
+  {id:55,name:"Thandi Cleaning Solutions",city:"Johannesburg",sector:"Cleaning",tier:"B",mrr:"R8-10k"},
+  {id:56,name:"Mpho Office Services",city:"Bloemfontein",sector:"Cleaning",tier:"C",mrr:"R4-6k"},
+  {id:57,name:"Luyolo Clean Works",city:"East London",sector:"Cleaning",tier:"C",mrr:"R3-5k"},
+  {id:58,name:"Ndlela Contract Cleaning",city:"Durban",sector:"Cleaning",tier:"C",mrr:"R4-6k"},
+  {id:59,name:"Cape Fresh Cleaning",city:"Cape Town",sector:"Cleaning",tier:"C",mrr:"R3-5k"},
+  {id:60,name:"Dikeledi Commercial Clean",city:"Polokwane",sector:"Cleaning",tier:"C",mrr:"R3-5k"},
+  {id:61,name:"Noma Domestic and Contract",city:"Pietermaritzburg",sector:"Cleaning",tier:"C",mrr:"R3-5k"},
+  {id:62,name:"Sibongile Contract Services",city:"Nelspruit",sector:"Cleaning",tier:"C",mrr:"R3-5k"},
+  {id:63,name:"Lerato Office Hygiene",city:"Johannesburg",sector:"Cleaning",tier:"C",mrr:"R4-6k"},
+  {id:64,name:"Ntombi Facilities Pty Ltd",city:"Pretoria",sector:"Cleaning",tier:"C",mrr:"R3-5k"},
+  {id:65,name:"Facilities Plus SA",city:"Johannesburg",sector:"Facilities",tier:"A",mrr:"R25-40k"},
+  {id:66,name:"ISS Facility Services SA",city:"Cape Town",sector:"Facilities",tier:"A",mrr:"R30-50k"},
+  {id:67,name:"Empact Group",city:"Johannesburg",sector:"Facilities",tier:"A",mrr:"R20-35k"},
+  {id:68,name:"G4S Facilities Management",city:"Durban",sector:"Facilities",tier:"A",mrr:"R20-30k"},
+  {id:69,name:"Elixir Facilities",city:"Pretoria",sector:"Facilities",tier:"A",mrr:"R15-25k"},
+  {id:70,name:"Servest Integrated",city:"Johannesburg",sector:"Facilities",tier:"A",mrr:"R20-30k"},
+  {id:71,name:"Izakhiwo FM",city:"Cape Town",sector:"Facilities",tier:"B",mrr:"R10-15k"},
+  {id:72,name:"Sikhona Integrated Services",city:"Durban",sector:"Facilities",tier:"B",mrr:"R8-12k"},
+  {id:73,name:"Sakha Facilities",city:"Johannesburg",sector:"Facilities",tier:"B",mrr:"R8-12k"},
+  {id:74,name:"Nomvula Property Services",city:"Pretoria",sector:"Facilities",tier:"B",mrr:"R8-12k"},
+  {id:75,name:"Lungisa FM Solutions",city:"Port Elizabeth",sector:"Facilities",tier:"B",mrr:"R8-10k"},
+  {id:76,name:"Intuthuko Facilities",city:"East London",sector:"Facilities",tier:"B",mrr:"R8-10k"},
+  {id:77,name:"Mzomhle Property Mgmt",city:"Bloemfontein",sector:"Facilities",tier:"C",mrr:"R4-6k"},
+  {id:78,name:"Thuthuka Integrated FM",city:"Rustenburg",sector:"Facilities",tier:"C",mrr:"R3-5k"},
+  {id:79,name:"Mpendulo FM Pty Ltd",city:"Nelspruit",sector:"Facilities",tier:"C",mrr:"R3-5k"},
+  {id:80,name:"Sowe Building Services",city:"Johannesburg",sector:"Facilities",tier:"C",mrr:"R4-6k"},
+  {id:81,name:"African Eagle FM",city:"Cape Town",sector:"Facilities",tier:"C",mrr:"R3-5k"},
+  {id:82,name:"Vulindlela Property Ops",city:"Durban",sector:"Facilities",tier:"C",mrr:"R3-5k"},
+  {id:83,name:"WBHO regional offices",city:"Cape Town",sector:"Construction",tier:"A",mrr:"R40-60k"},
+  {id:84,name:"Stefanutti Stocks divisions",city:"Johannesburg",sector:"Construction",tier:"A",mrr:"R35-50k"},
+  {id:85,name:"Murray and Roberts Build",city:"Johannesburg",sector:"Construction",tier:"A",mrr:"R30-45k"},
+  {id:86,name:"Concor Construction",city:"Cape Town",sector:"Construction",tier:"A",mrr:"R25-40k"},
+  {id:87,name:"Group Five surviving div",city:"Johannesburg",sector:"Construction",tier:"A",mrr:"R20-35k"},
+  {id:88,name:"NMC Construction",city:"Cape Town",sector:"Construction",tier:"B",mrr:"R10-15k"},
+  {id:89,name:"Aveng Grinaker LTA",city:"Pretoria",sector:"Construction",tier:"A",mrr:"R30-40k"},
+  {id:90,name:"Basil Read division",city:"Johannesburg",sector:"Construction",tier:"B",mrr:"R10-15k"},
+  {id:91,name:"WBHO Roads and Earthworks",city:"Pretoria",sector:"Construction",tier:"A",mrr:"R25-35k"},
+  {id:92,name:"Haw and Inglis roads",city:"Durban",sector:"Construction",tier:"A",mrr:"R15-25k"},
+  {id:93,name:"Seagle Civils",city:"Cape Town",sector:"Construction",tier:"B",mrr:"R10-14k"},
+  {id:94,name:"Sanyati Civils",city:"Johannesburg",sector:"Construction",tier:"A",mrr:"R15-22k"},
+  {id:95,name:"Technicrete",city:"Pretoria",sector:"Construction",tier:"B",mrr:"R10-15k"},
+  {id:96,name:"Tri-Star Construction",city:"Cape Town",sector:"Construction",tier:"B",mrr:"R8-12k"},
+  {id:97,name:"DSD Construction",city:"Durban",sector:"Construction",tier:"B",mrr:"R8-12k"},
+  {id:98,name:"Corobrik Properties FM",city:"Durban",sector:"Facilities",tier:"B",mrr:"R8-12k"},
+  {id:99,name:"Old Mutual Properties FM",city:"Cape Town",sector:"Facilities",tier:"A",mrr:"R15-25k"},
+  {id:100,name:"Redefine Properties FM",city:"Johannesburg",sector:"Facilities",tier:"A",mrr:"R15-25k"},
+];
+
+const STORAGE_KEY='tt_sent_v2';
+const LOG_KEY='tt_log_v2';
+const CALENDLY='https://calendly.com/liyagoni84/30min';
+const GOOGLE_CLIENT_ID='YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com';
+
+let gmailToken=null,gmailEmail=null;
+let sentIds=new Set(),sendLog=[];
+let batch=[],emails={},states={},variations={};
+
+function loadState(){
+  try{const r=localStorage.getItem(STORAGE_KEY);if(r)sentIds=new Set(JSON.parse(r));}catch(e){}
+  try{const r=localStorage.getItem(LOG_KEY);if(r)sendLog=JSON.parse(r);}catch(e){}
+}
+function saveState(){
+  localStorage.setItem(STORAGE_KEY,JSON.stringify([...sentIds]));
+  localStorage.setItem(LOG_KEY,JSON.stringify(sendLog));
+}
+
+function $id(id){return document.getElementById(id);}
+function cfg(id){return $id(id)?$id(id).value:'';}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+function updateStats(){
+  const c=sentIds.size,r=PROSPECTS.length-c;
+  $id('sb-total').textContent=PROSPECTS.length;
+  $id('sb-contacted').textContent=c;
+  $id('sb-remaining').textContent=r;
+  $id('m-total').textContent=PROSPECTS.length;
+  $id('m-contacted').textContent=c;
+  $id('m-remaining').textContent=r;
+  const pct=Math.round((c/PROSPECTS.length)*100);
+  $id('pb-pct').textContent=pct+'%';
+  $id('pb-fill').style.width=pct+'%';
+  $id('pb-meta').textContent=c+' of '+PROSPECTS.length+' prospects contacted';
+}
+
+let alertTimer;
+function showAlert(msg,type='info'){
+  const b=$id('alert-bar');
+  b.textContent=msg;b.className='alert-bar show '+type;
+  clearTimeout(alertTimer);
+  alertTimer=setTimeout(()=>b.classList.remove('show'),5000);
+}
+
+function switchTab(name,el){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+  $id('panel-'+name).classList.add('active');
+}
+
+// GMAIL AUTH
+function loadGIS(){
+  return new Promise(res=>{
+    if(window.google&&window.google.accounts){res();return;}
+    const s=document.createElement('script');
+    s.src='https://accounts.google.com/gsi/client';
+    s.onload=res;document.head.appendChild(s);
+  });
+}
+async function connectGmail(){
+  showAlert('Opening Google sign-in...','info');
+  await loadGIS();
+  const client=google.accounts.oauth2.initTokenClient({
+    client_id:GOOGLE_CLIENT_ID,
+    scope:'https://www.googleapis.com/auth/gmail.send https://www.googleapis.com/auth/userinfo.email',
+    callback:async(resp)=>{
+      if(resp.error){showAlert('Gmail error: '+resp.error,'error');return;}
+      gmailToken=resp.access_token;
+      try{
+        const r=await fetch('https://www.googleapis.com/oauth2/v3/userinfo',{headers:{Authorization:'Bearer '+gmailToken}});
+        const u=await r.json();gmailEmail=u.email;
+      }catch(e){gmailEmail='your Gmail';}
+      onConnected();
+    }
+  });
+  client.requestAccessToken();
+}
+function onConnected(){
+  $id('connect-screen').style.display='none';
+  const app=$id('app');
+  app.style.display='flex';app.style.flexDirection='column';app.style.flex='1';app.style.overflow='hidden';
+  $id('gmail-dot').classList.add('on');
+  $id('gmail-status-txt').textContent='Gmail connected';
+  $id('gmail-email-txt').textContent=gmailEmail||'';
+  $id('topbar-date').textContent=new Date().toLocaleDateString('en-ZA',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  updateStats();renderLog();
+}
+
+// GENERATION
+const SECTOR_PAIN={
+  Construction:"CIDB renewals, COIDA lapses before major bids, and BEE certificates expiring mid-tender are the primary reasons construction companies get disqualified from SA government tenders. Not pricing. SBD forms get copy-pasted manually across every new application.",
+  Security:"PSiRA-registered security companies lose government contracts when a tax clearance pin expires or a BEE certificate does not get loaded onto CSD. Multi-site operations create overlapping compliance deadlines that are hard to track manually.",
+  Cleaning:"Hospital, DoH, and municipal cleaning tenders are frequently disqualified when BEE certificates miss the CSD upload or SARS pins expire on submission day. Compliance decides who wins, not price.",
+  Facilities:"FM companies managing government contracts across multiple provinces track 5 to 8 compliance certificates simultaneously, each on a different renewal cycle. One expiry on the wrong day means a missed tender or a suspended contract."
+};
+const VARIATION_INSTRUCTIONS={
+  A:"Straight shooter. Open with a blunt specific compliance fact for their sector. No build-up. Like a colleague sharing something useful, not a sales rep.",
+  B:"Curiosity gap. Open with a light observation or implied question that creates mild intrigue before dropping the dashboard link. Let the link answer the question.",
+  C:"Social proof hook. Open with what similar companies in their sector or city are experiencing, then connect it to this specific prospect."
+};
+
+function assignVariations(batchList,cfgVar){
+  const rota=['A','B','C'];
+  batchList.forEach((p,i)=>{variations[p.id]=cfgVar==='rotate'?rota[i%3]:cfgVar;});
+}
+
+async function callClaude(prompt){
+  const resp=await fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:prompt}]})
+  });
+  if(!resp.ok)throw new Error('API '+resp.status);
+  const d=await resp.json();
+  const text=d.content.map(b=>b.text||'').join('').trim();
+  return JSON.parse(text.replace(/```json|```/g,'').trim());
+}
+
+async function generateOne(p){
+  const dashLink=cfg('cfg-dashboard')||'https://tendertrack.co.za/demo/';
+  const senderName=cfg('cfg-name')||'Neo';
+  const v=variations[p.id]||'A';
+  const prompt=`You are writing a cold outreach email for TenderTrack SA, a SaaS automating tender compliance for South African companies.
+
+PROSPECT:
+Company: ${p.name}
+City: ${p.city}
+Sector: ${p.sector}
+Tier: ${p.tier} (${p.mrr} per month)
+
+SECTOR CONTEXT:
+${SECTOR_PAIN[p.sector]||SECTOR_PAIN.Construction}
+
+VOICE STYLE (Variation ${v}):
+${VARIATION_INSTRUCTIONS[v]}
+
+STRICT RULES:
+- Direct peer-to-peer tone. No pleasantries, no "I hope this finds you well", no exclamation marks.
+- Subtle personalisation using company name, city and sector pain. Do not sound over-researched.
+- Email 1: 3-4 sentences. Compliance pain hook specific to sector and city. Then the dashboard link on its own line. Then sign off with just "${senderName}".
+- Email 2: exactly one sentence inviting a 30-min call (low friction, no pressure). Then the Calendly link on its own line. Nothing after the link.
+- Dashboard link to embed: ${dashLink}
+- Calendly link: ${CALENDLY}
+
+RESPOND WITH VALID JSON ONLY. No markdown fences, no explanation, no extra keys:
+{"subject1":"...","body1":"...","subject2":"...","body2":"..."}`;
+  return callClaude(prompt);
+}
+
+async function startGenerate(){
+  const remaining=PROSPECTS.filter(p=>!sentIds.has(p.id));
+  if(!remaining.length){showAlert('All 100 prospects have been contacted.','info');return;}
+  const batchSize=parseInt(cfg('cfg-batch')||'25');
+  const cfgVar=cfg('cfg-variation')||'rotate';
+  batch=remaining.slice(0,batchSize);
+  emails={};states={};variations={};
+  assignVariations(batch,cfgVar);
+
+  // Switch to preview tab
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab')[1].classList.add('active');
+  $id('panel-preview').classList.add('active');
+
+  $id('btn-generate').disabled=true;
+  $id('btn-generate').textContent='✦ Generating...';
+  $id('m-batch').textContent=batch.length;
+  $id('m-batch-sub').textContent="in today's batch";
+  $id('cta-batch-n').textContent=batch.length;
+  $id('tab-preview-badge').textContent=batch.length;
+  $id('tab-preview-badge').className='tab-badge tb-amber';
+
+  batch.forEach(p=>{states[p.id]='pending';});
+  renderCards();
+  $id('send-bar').classList.add('show');
+  updateSendBar();
+
+  for(const p of batch){
+    states[p.id]='generating';updateCard(p.id);
+    try{
+      const e=await generateOne(p);
+      emails[p.id]=e;states[p.id]='ready';
+    }catch(err){
+      states[p.id]='error';console.error(p.name,err);
+    }
+    updateCard(p.id);updateSendBar();
+  }
+
+  $id('btn-generate').disabled=false;
+  $id('btn-generate').textContent='✦ Generate preview';
+  $id('tab-preview-badge').className='tab-badge tb-green';
+  showAlert('All emails generated. Review then send.','success');
+}
+
+// CARD RENDERING
+function sc(s){return{Construction:'b-con',Security:'b-sec',Cleaning:'b-cln',Facilities:'b-fac'}[s]||'b-con';}
+function tc(t){return{A:'b-a',B:'b-b',C:'b-c'}[t]||'b-b';}
+function vc(v){return{A:'b-va',B:'b-vb',C:'b-vc'}[v]||'b-va';}
+
+function renderCards(){
+  const list=$id('preview-list');
+  list.innerHTML=batch.map((p,i)=>`
+<div class="lead-card" id="card-${p.id}">
+  <div class="lead-header" onclick="toggleCard(${p.id})">
+    <div class="lh-num">${String(i+1).padStart(2,'0')}</div>
+    <div class="lh-info">
+      <div class="lh-name">${esc(p.name)}</div>
+      <div class="lh-meta">${p.city} · ${p.mrr}/mo · Var ${variations[p.id]||'?'}</div>
+    </div>
+    <div class="lh-right">
+      <span class="badge ${sc(p.sector)}">${p.sector}</span>
+      <span class="badge ${tc(p.tier)}">${p.tier}</span>
+      <span class="badge ${vc(variations[p.id])}" id="vbadge-${p.id}">${variations[p.id]||'?'}</span>
+      <div class="status-dot sd-pending" id="sdot-${p.id}"></div>
+      <span id="spin-${p.id}" style="display:none"><span class="spinner"></span></span>
+    </div>
+  </div>
+  <div class="lead-body" id="body-${p.id}">
+    <div class="email-editor"><div style="color:var(--text3);font-size:12px;padding:.25rem 0">Generating...</div></div>
+  </div>
+</div>`).join('');
+}
+
+function updateCard(id){
+  const state=states[id];
+  const card=$id('card-'+id);
+  const sdot=$id('sdot-'+id);
+  const spin=$id('spin-'+id);
+  const body=$id('body-'+id);
+  if(!card)return;
+  card.className='lead-card';
+  spin.style.display='none';sdot.style.display='';
+  if(state==='generating'){
+    card.classList.add('lc-generating');
+    sdot.className='status-dot sd-generating';
+    spin.style.display='inline';sdot.style.display='none';
+  }else if(state==='ready'){
+    card.classList.add('lc-ready');
+    sdot.className='status-dot sd-ready';
+    renderCardBody(id);
+  }else if(state==='sent'){
+    card.classList.add('lc-sent');
+    sdot.className='status-dot sd-sent';
+  }else if(state==='error'){
+    card.classList.add('lc-error');
+    sdot.className='status-dot sd-error';
+    body.innerHTML=`<div class="email-editor"><div style="color:var(--red);font-size:12px">Generation failed. <button class="btn btn-ghost btn-sm" onclick="regenOne(${id})">Retry</button></div></div>`;
+  }
+}
+
+function renderCardBody(id){
+  const e=emails[id];
+  const p=batch.find(x=>x.id===id);
+  if(!e||!p)return;
+  const body=$id('body-'+id);
+  const slug=p.name.toLowerCase().replace(/[^a-z0-9]+/g,'').slice(0,12);
+  const defaultTo='info@'+slug+'.co.za';
+  body.innerHTML=`
+<div class="email-editor">
+  <div class="email-to-row">
+    <label>To</label>
+    <input type="email" id="to-${id}" value="${defaultTo}" placeholder="recipient@company.co.za"/>
+  </div>
+  <div class="email-section">
+    <div class="es-label"><span class="badge ${vc(variations[id])}" style="font-size:9px">Variation ${variations[id]}</span> Email 1 of 2 — Hook + link</div>
+    <div class="es-subj">Subject: <span>${esc(e.subject1)}</span></div>
+    <div class="es-body" contenteditable="true" id="b1-${id}">${esc(e.body1)}</div>
+  </div>
+  <div class="email-divider"></div>
+  <div class="email-section">
+    <div class="es-label">Email 2 of 2 — Calendly</div>
+    <div class="es-subj">Subject: <span>${esc(e.subject2)}</span></div>
+    <div class="es-body" contenteditable="true" id="b2-${id}">${esc(e.body2)}</div>
+  </div>
+  <div class="card-actions">
+    <button class="btn btn-green btn-sm" onclick="sendOne(${id})">Send this one</button>
+    <button class="btn btn-ghost btn-sm" onclick="regenOne(${id})">Re-write</button>
+  </div>
+</div>`;
+}
+
+function toggleCard(id){$id('body-'+id).classList.toggle('open');}
+
+function updateSendBar(){
+  const ready=batch.filter(p=>states[p.id]==='ready').length;
+  const sent=batch.filter(p=>states[p.id]==='sent').length;
+  const total=batch.length;
+  $id('sb-ready').textContent=ready;
+  $id('sb-sent-today').textContent=sent;
+  $id('send-all-n').textContent=ready;
+  $id('send-mini-fill').style.width=(total?Math.round((sent/total)*100):0)+'%';
+  $id('preview-toolbar-txt').innerHTML=`<strong>${ready}</strong> ready &nbsp;·&nbsp; <strong>${sent}</strong> sent &nbsp;·&nbsp; ${total-ready-sent} generating`;
+}
+
+// SEND
+async function gmailSend(to,subject,bodyText){
+  const raw=['To: '+to,'Subject: '+subject,'Content-Type: text/plain; charset=utf-8','',bodyText].join('\r\n');
+  const enc=btoa(unescape(encodeURIComponent(raw))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+  const r=await fetch('https://www.googleapis.com/gmail/v1/users/me/messages/send',{
+    method:'POST',
+    headers:{'Authorization':'Bearer '+gmailToken,'Content-Type':'application/json'},
+    body:JSON.stringify({raw:enc})
+  });
+  if(!r.ok){const e=await r.json();throw new Error(e.error?.message||'Send failed');}
+  return r.json();
+}
+
+async function sendOne(id){
+  const p=batch.find(x=>x.id===id);
+  const e=emails[id];
+  if(!p||!e)return;
+  const to=$id('to-'+id)?.value||'';
+  if(!to){showAlert('Enter a recipient email for '+p.name,'error');return;}
+  const prevState=states[id];
+  states[id]='generating';updateCard(id);
+  try{
+    const b1=$id('b1-'+id)?.innerText||e.body1;
+    const b2=$id('b2-'+id)?.innerText||e.body2;
+    await gmailSend(to,e.subject1,b1);
+    await new Promise(r=>setTimeout(r,700));
+    await gmailSend(to,e.subject2,b2);
+    markSent(p);
+    states[id]='sent';updateCard(id);updateSendBar();
+    showAlert('Sent to '+p.name,'success');
+  }catch(err){
+    states[id]=prevState;updateCard(id);
+    showAlert('Send failed for '+p.name+': '+err.message,'error');
+  }
+}
+
+async function sendAll(){
+  const ready=batch.filter(p=>states[p.id]==='ready');
+  if(!ready.length){showAlert('No emails ready to send.','info');return;}
+  const overlay=$id('overlay');
+  overlay.classList.add('show');
+  $id('overlay-fill').style.width='0%';
+  $id('overlay-count').textContent='0 / '+ready.length;
+  for(let i=0;i<ready.length;i++){
+    const p=ready[i];const e=emails[p.id];
+    const to=$id('to-'+p.id)?.value||'';
+    $id('overlay-msg').textContent='Sending to '+p.name+'...';
+    if(to&&e){
+      try{
+        const b1=$id('b1-'+p.id)?.innerText||e.body1;
+        const b2=$id('b2-'+p.id)?.innerText||e.body2;
+        await gmailSend(to,e.subject1,b1);
+        await new Promise(r=>setTimeout(r,600));
+        await gmailSend(to,e.subject2,b2);
+        markSent(p);states[p.id]='sent';
+      }catch(err){states[p.id]='error';}
+    }else{states[p.id]='error';}
+    updateCard(p.id);
+    const pct=Math.round(((i+1)/ready.length)*100);
+    $id('overlay-fill').style.width=pct+'%';
+    $id('overlay-count').textContent=(i+1)+' / '+ready.length;
+    updateSendBar();updateStats();
+    await new Promise(r=>setTimeout(r,400));
+  }
+  overlay.classList.remove('show');
+  renderLog();
+  showAlert('Done. Emails dispatched.','success');
+}
+
+function markSent(p){
+  sentIds.add(p.id);
+  sendLog.unshift({id:p.id,name:p.name,sector:p.sector,city:p.city,tier:p.tier,sentAt:new Date().toISOString()});
+  saveState();
+}
+
+async function regenOne(id){
+  const p=batch.find(x=>x.id===id);if(!p)return;
+  states[id]='generating';updateCard(id);
+  try{const e=await generateOne(p);emails[id]=e;states[id]='ready';}
+  catch(err){states[id]='error';}
+  updateCard(id);updateSendBar();
+}
+
+// LOG
+function renderLog(){
+  const body=$id('log-body');
+  const rows=sendLog.map(e=>{
+    const d=new Date(e.sentAt);
+    const ts=d.toLocaleDateString('en-ZA',{day:'numeric',month:'short'})+' '+d.toLocaleTimeString('en-ZA',{hour:'2-digit',minute:'2-digit'});
+    return `<div class="log-row"><div><div class="log-company">${esc(e.name)}</div><div class="log-meta">${e.city} · ${e.sector} · Tier ${e.tier}</div></div><div class="log-time">${ts}</div></div>`;
+  }).join('');
+  const empty=sendLog.length===0;
+  body.innerHTML=`<div class="log-empty" style="display:${empty?'flex':'none'}"><div class="log-empty-icon">📋</div><div style="font-size:13px;color:var(--text2)">No sends logged yet</div><div style="font-size:12px;color:var(--text3)">Sent emails appear here with timestamps</div></div>`+rows;
+  $id('tab-log-badge').textContent=sendLog.length;
+}
+
+function resetAll(){
+  if(!confirm('Clear all send history? This cannot be undone.'))return;
+  sentIds.clear();sendLog=[];
+  localStorage.removeItem(STORAGE_KEY);localStorage.removeItem(LOG_KEY);
+  updateStats();renderLog();
+  showAlert('History cleared. All 100 leads marked uncontacted.','info');
+}
+
+// INIT
+loadState();updateStats();
+$id('topbar-date').textContent=new Date().toLocaleDateString('en-ZA',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+$id('cfg-batch').addEventListener('change',function(){$id('cta-batch-n').textContent=this.value;});
+</script>
+</body>
+</html>
